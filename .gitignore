@@ -1,0 +1,9 @@
+__debug_bin*
+*.db
+main
+*.pyc
+pyvenv.cfg
+venv/
+.vscode/
+*.pem
+*.DS_Store
