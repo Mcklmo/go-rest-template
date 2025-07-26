@@ -17,7 +17,7 @@ import (
 func NewServer(
 	userStore domain.UserStore,
 	store domain.Store,
-	authHandler *auth.AuthHandler,
+	authHandler auth.AuthHandler,
 	logger *slog.Logger,
 ) http.Handler {
 	router := mux.NewRouter()
@@ -26,7 +26,7 @@ func NewServer(
 		humamux.New(router, huma.DefaultConfig("My API", "1.0.0")),
 		logger,
 	)
-	api.UseMiddleware(middleware.Auth(authHandler.PublicKey, logger, api, userStore))
+	api.UseMiddleware(middleware.Auth(authHandler.GetPublicKey(), logger, api, userStore))
 
 	router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger.Error("Not found", "path", r.URL.Path, "method", r.Method)

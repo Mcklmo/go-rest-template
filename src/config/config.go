@@ -20,19 +20,19 @@ type Config struct {
 	AssetPath               string
 	PublicKeyLocalFilePath  string
 	PrivateKeyLocalFilePath string
+	DropDatabase            bool
 }
 
 func NewConfig() *Config {
 	c := &Config{
 		Port:                    "8080",
 		Address:                 "0.0.0.0",
-		PrivateKey:              "secret",
-		PublicKey:               nil,
 		DatabaseURL:             "./workout_tracker.db",
 		MuscleCSVPath:           "muscle.csv",
 		AssetPath:               "src/asset",
 		PublicKeyLocalFilePath:  "public.pem",
 		PrivateKeyLocalFilePath: "private.pem",
+		DropDatabase:            true,
 	}
 
 	flagSet := flag.NewFlagSet("server", flag.ExitOnError)

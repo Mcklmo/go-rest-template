@@ -11,17 +11,21 @@ import (
 	"github.com/lestrrat-go/jwx/v3/jwt/openid"
 )
 
-func NewAuthHandler(privateKey any, publicKey any) *AuthHandler {
-	return &AuthHandler{privateKey: privateKey, PublicKey: publicKey}
+func NewAuthHandler(privateKey any, publicKey any) AuthHandler {
+	return &AAuthHandler{privateKey: privateKey, PublicKey: publicKey}
 }
 
 type (
+	AuthHandler interface {
+		NewSession(user domain.User) (SessionOutput, error)
+		GetPublicKey() any
+	}
 	SessionOutput struct {
 		Body struct {
 			Token string `json:"token"`
 		}
 	}
-	AuthHandler struct {
+	AAuthHandler struct {
 		privateKey any
 		PublicKey  any
 	}
@@ -37,7 +41,11 @@ const (
 	UserIDKey = "user_id"
 )
 
-func (h *AuthHandler) NewSession(user domain.User) (_ SessionOutput, err error) {
+func (h *AAuthHandler) GetPublicKey() any {
+	return h.PublicKey
+}
+
+func (h *AAuthHandler) NewSession(user domain.User) (_ SessionOutput, err error) {
 	var token openid.Token
 
 	if token, err = makeToken(int64(3600), user); err != nil {
@@ -56,7 +64,7 @@ func (h *AuthHandler) NewSession(user domain.User) (_ SessionOutput, err error) 
 	}, nil
 }
 
-func (h AuthHandler) sign(t openid.Token) (string, error) {
+func (h AAuthHandler) sign(t openid.Token) (string, error) {
 	signed, err := jwt.Sign(t, jwt.WithKey(jwa.RS256(), h.privateKey))
 	if err != nil {
 		return "", err

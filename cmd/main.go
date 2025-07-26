@@ -24,6 +24,10 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	c := config.NewConfig()
 
+	if c.DropDatabase {
+		os.Remove(c.DatabaseURL)
+	}
+
 	db, err := sqlx.Open("sqlite3", c.DatabaseURL)
 	if err != nil {
 		log.Fatalf("Failed to open database: %v", err)
@@ -49,7 +53,10 @@ func main() {
 	authHandler := auth.NewAuthHandler(c.PrivateKey, c.PublicKey)
 	server := handler.NewServer(userStore, store, authHandler, logger)
 
-	httpgrace.ListenAndServe(c.Address+":"+c.Port, server)
+	err = httpgrace.ListenAndServe(c.Address+":"+c.Port, server)
+	if err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }
 
 func runMigration(logger *slog.Logger, migration *migrate.Migrate) error {
